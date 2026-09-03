@@ -1,0 +1,300 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f4f6f8;
+}
+
+.app {
+  min-height: 100vh;
+  padding: 30px;
+  text-align: center;
+}
+
+h1 {
+  margin-bottom: 5px;
+  font-size: 32px;
+}
+
+.subtitle {
+  color: #666;
+  margin-bottom: 25px;
+}
+
+
+/* =========================================
+   CONTROLS
+========================================= */
+
+.controls {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.controls select,
+.controls button {
+  padding: 10px 16px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+}
+
+.controls select {
+  background: white;
+}
+
+.controls button {
+  cursor: pointer;
+  background: #222;
+  color: white;
+  border: none;
+}
+
+.controls button:hover {
+  opacity: 0.8;
+}
+
+.controls button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+
+/* =========================================
+   HEURISTIC PANEL
+========================================= */
+
+.heuristic {
+  width: 650px;
+  max-width: 95%;
+
+  margin: 15px auto;
+
+  padding: 15px;
+
+  border-radius: 8px;
+
+  background: white;
+
+  border: 1px solid #ddd;
+}
+
+.heuristic h2 {
+  margin-top: 0;
+}
+
+.heuristic-values {
+  display: flex;
+  justify-content: center;
+  gap: 35px;
+  margin-top: 15px;
+}
+
+.heuristic-values div {
+  display: flex;
+  gap: 8px;
+}
+
+
+/* =========================================
+   STATUS
+========================================= */
+
+.status {
+  width: 90%;
+  max-width: 900px;
+
+  margin: 15px auto;
+
+  min-height: 30px;
+
+  font-weight: bold;
+}
+
+
+/* =========================================
+   MAZE
+========================================= */
+
+.maze {
+  display: grid;
+
+  justify-content: center;
+
+  margin: 25px auto;
+
+  width: fit-content;
+
+  border: 3px solid #222;
+}
+
+
+/* =========================================
+   CELL
+========================================= */
+
+.cell {
+  width: 28px;
+  height: 28px;
+
+  border: 1px solid #ddd;
+
+  background: white;
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  font-size: 9px;
+
+  font-weight: bold;
+}
+
+
+/* =========================================
+   WALL
+========================================= */
+
+.wall {
+  background: #222;
+
+  border-color: #222;
+}
+
+
+/* =========================================
+   START
+========================================= */
+
+.start {
+  background: #2196f3;
+
+  color: white;
+
+  font-size: 12px;
+}
+
+
+/* =========================================
+   GOAL
+========================================= */
+
+.goal {
+  background: #e91e63;
+
+  color: white;
+
+  font-size: 12px;
+}
+
+
+/* =========================================
+   EXPLORED
+========================================= */
+
+.explored {
+  background: #90caf9;
+
+  color: #222;
+}
+
+
+/* =========================================
+   FINAL PATH
+========================================= */
+
+.path {
+  background: #4caf50;
+
+  color: white;
+}
+
+
+/* =========================================
+   LEGEND
+========================================= */
+
+.legend {
+  display: flex;
+
+  justify-content: center;
+
+  flex-wrap: wrap;
+
+  gap: 20px;
+
+  margin-top: 20px;
+}
+
+.legend div {
+  display: flex;
+
+  align-items: center;
+
+  gap: 6px;
+}
+
+.legend-box {
+  width: 20px;
+
+  height: 20px;
+
+  display: inline-block;
+
+  border: 1px solid #aaa;
+}
+
+.start-box {
+  background: #2196f3;
+}
+
+.goal-box {
+  background: #e91e63;
+}
+
+.wall-box {
+  background: #222;
+}
+
+.explored-box {
+  background: #90caf9;
+}
+
+.path-box {
+  background: #4caf50;
+}
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 900px) {
+
+  .app {
+    padding: 15px;
+  }
+
+  .maze {
+    transform: scale(0.8);
+    transform-origin: top center;
+    margin-bottom: -80px;
+  }
+
+  .controls {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .heuristic-values {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
