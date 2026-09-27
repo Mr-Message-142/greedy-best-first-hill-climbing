@@ -1,23 +1,22 @@
 // ============================================
-// HEURISTIC FUNCTION
+// HEURISTIC
 // ============================================
 
-// Manhattan Distance
-// h(n) = |row1 - row2| + |col1 - col2|
-
 export function manhattanDistance(a, b) {
-  return Math.abs(a.row - b.row) + Math.abs(a.col - b.col);
+  return (
+    Math.abs(a.row - b.row) +
+    Math.abs(a.col - b.col)
+  );
 }
 
 
 // ============================================
-// UTILITY FUNCTIONS
+// HELPERS
 // ============================================
 
 function key(node) {
   return `${node.row}-${node.col}`;
 }
-
 
 function isValid(grid, row, col) {
   return (
@@ -29,13 +28,12 @@ function isValid(grid, row, col) {
   );
 }
 
-
 function getNeighbors(grid, node) {
   const directions = [
-    [-1, 0], // Up
-    [1, 0],  // Down
-    [0, -1], // Left
-    [0, 1]   // Right
+    [-1, 0],
+    [1, 0],
+    [0, -1],
+    [0, 1]
   ];
 
   const neighbors = [];
@@ -45,20 +43,15 @@ function getNeighbors(grid, node) {
     const col = node.col + dc;
 
     if (isValid(grid, row, col)) {
-      neighbors.push({
-        row,
-        col
-      });
+      neighbors.push({ row, col });
     }
   }
 
   return neighbors;
 }
 
-
 function reconstructPath(parent, start, goal) {
   const path = [];
-
   let current = goal;
 
   while (current) {
@@ -87,16 +80,12 @@ function reconstructPath(parent, start, goal) {
 // ============================================
 // GREEDY BEST-FIRST SEARCH
 // ============================================
-//
-// Evaluation:
-//      f(n) = h(n)
-//
-// Greedy chooses the node with the smallest
-// Manhattan distance to the goal.
-//
 
-export function greedyBestFirstSearch(grid, start, goal) {
-
+export function greedyBestFirstSearch(
+  grid,
+  start,
+  goal
+) {
   const openList = [start];
 
   const visited = new Set();
@@ -107,16 +96,21 @@ export function greedyBestFirstSearch(grid, start, goal) {
 
   while (openList.length > 0) {
 
-    // Find node with smallest heuristic
     let bestIndex = 0;
 
     for (let i = 1; i < openList.length; i++) {
 
       const currentH =
-        manhattanDistance(openList[i], goal);
+        manhattanDistance(
+          openList[i],
+          goal
+        );
 
       const bestH =
-        manhattanDistance(openList[bestIndex], goal);
+        manhattanDistance(
+          openList[bestIndex],
+          goal
+        );
 
       if (currentH < bestH) {
         bestIndex = i;
@@ -136,9 +130,7 @@ export function greedyBestFirstSearch(grid, start, goal) {
 
     explored.push(current);
 
-    // Goal found
     if (currentKey === key(goal)) {
-
       return {
         path: reconstructPath(
           parent,
@@ -146,7 +138,8 @@ export function greedyBestFirstSearch(grid, start, goal) {
           goal
         ),
         explored,
-        stuck: false
+        stuck: false,
+        reason: "Goal reached"
       };
     }
 
@@ -172,7 +165,8 @@ export function greedyBestFirstSearch(grid, start, goal) {
   return {
     path: [],
     explored,
-    stuck: true
+    stuck: true,
+    reason: "No path found"
   };
 }
 
@@ -180,21 +174,12 @@ export function greedyBestFirstSearch(grid, start, goal) {
 // ============================================
 // HILL CLIMBING
 // ============================================
-//
-// Hill Climbing looks ONLY at the current
-// node's neighbors.
-//
-// It selects the neighbor having the smallest
-// heuristic value.
-//
-// If no neighbor has a smaller heuristic,
-// the algorithm becomes stuck.
-//
-// This demonstrates the LOCAL OPTIMUM problem.
-//
 
-export function hillClimbing(grid, start, goal) {
-
+export function hillClimbing(
+  grid,
+  start,
+  goal
+) {
   let current = start;
 
   const path = [start];
@@ -210,26 +195,22 @@ export function hillClimbing(grid, start, goal) {
     const neighbors =
       getNeighbors(grid, current);
 
-    // Remove visited cells
     const availableNeighbors =
       neighbors.filter(
         neighbor =>
           !visited.has(key(neighbor))
       );
 
-    // No available neighbors
     if (availableNeighbors.length === 0) {
-
       return {
-        path: [],
+        path,
         explored,
         stuck: true,
-        reason: "No unvisited neighbors available."
+        reason:
+          "No unvisited neighbors available"
       };
     }
 
-
-    // Find neighbor with smallest heuristic
     let bestNeighbor =
       availableNeighbors[0];
 
@@ -249,7 +230,6 @@ export function hillClimbing(grid, start, goal) {
       }
     }
 
-
     const currentH =
       manhattanDistance(
         current,
@@ -262,25 +242,15 @@ export function hillClimbing(grid, start, goal) {
         goal
       );
 
-
-    // LOCAL OPTIMUM
-    //
-    // If best neighbor is not better
-    // than current node, stop.
-
     if (bestH >= currentH) {
-
       return {
-        path: [],
+        path,
         explored,
         stuck: true,
         reason:
-          `Local optimum reached. Current h=${currentH}, best neighbor h=${bestH}`
+          `Local optimum: current h=${currentH}, best neighbor h=${bestH}`
       };
     }
-
-
-    // Move to better neighbor
 
     current = bestNeighbor;
 
@@ -291,11 +261,10 @@ export function hillClimbing(grid, start, goal) {
     explored.push(current);
   }
 
-
   return {
     path,
     explored,
     stuck: false,
-    reason: "Goal reached successfully."
+    reason: "Goal reached"
   };
 }

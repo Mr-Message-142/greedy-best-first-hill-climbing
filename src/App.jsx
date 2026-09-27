@@ -10,7 +10,7 @@ import "./App.css";
 
 
 // ============================================
-// MAZE CONFIGURATION
+// MAZE SETTINGS
 // ============================================
 
 const ROWS = 20;
@@ -28,10 +28,24 @@ const GOAL = {
 
 
 // ============================================
-// GENERATE MAZE
+// DIFFICULTY
 // ============================================
 
-function generateMaze() {
+const difficulties = {
+  easy: 0.12,
+  medium: 0.20,
+  hard: 0.28
+};
+
+
+// ============================================
+// CREATE MAZE
+// ============================================
+
+function generateMaze(difficulty = "medium") {
+
+  const wallProbability =
+    difficulties[difficulty];
 
   const maze = [];
 
@@ -41,7 +55,6 @@ function generateMaze() {
 
     for (let col = 0; col < COLS; col++) {
 
-      // Border walls
       if (
         row === 0 ||
         row === ROWS - 1 ||
@@ -51,7 +64,6 @@ function generateMaze() {
         currentRow.push(1);
       }
 
-      // Start and goal
       else if (
         (row === START.row &&
           col === START.col) ||
@@ -61,11 +73,9 @@ function generateMaze() {
         currentRow.push(0);
       }
 
-      // Random walls
       else {
-
         currentRow.push(
-          Math.random() < 0.22
+          Math.random() < wallProbability
             ? 1
             : 0
         );
@@ -76,7 +86,7 @@ function generateMaze() {
   }
 
 
-  // Guaranteed horizontal corridor
+  // Guaranteed basic route
   for (
     let col = START.col;
     col <= GOAL.col;
@@ -85,8 +95,6 @@ function generateMaze() {
     maze[START.row][col] = 0;
   }
 
-
-  // Guaranteed vertical corridor
   for (
     let row = START.row;
     row <= GOAL.row;
@@ -94,7 +102,6 @@ function generateMaze() {
   ) {
     maze[row][GOAL.col] = 0;
   }
-
 
   return maze;
 }
@@ -106,8 +113,13 @@ function generateMaze() {
 
 function App() {
 
+  const [difficulty, setDifficulty] =
+    useState("medium");
+
   const [maze, setMaze] =
-    useState(generateMaze());
+    useState(
+      generateMaze("medium")
+    );
 
   const [algorithm, setAlgorithm] =
     useState("greedy");
@@ -121,33 +133,78 @@ function App() {
   const [running, setRunning] =
     useState(false);
 
-  const [message, setMessage] =
+  const [status, setStatus] =
     useState(
-      "Select an algorithm and click Run"
+      "Ready to solve the maze"
     );
 
+  const [stats, setStats] =
+    useState({
+      explored: 0,
+      pathLength: 0,
+      heuristic: 44
+    });
 
-  // ============================================
-  // CREATE NEW MAZE
-  // ============================================
+
+  // ==========================================
+  // NEW MAZE
+  // ==========================================
 
   const newMaze = () => {
 
-    setMaze(generateMaze());
+    setMaze(
+      generateMaze(difficulty)
+    );
 
     setExplored([]);
 
     setPath([]);
 
-    setMessage(
+    setStats({
+      explored: 0,
+      pathLength: 0,
+      heuristic:
+        manhattanDistance(
+          START,
+          GOAL
+        )
+    });
+
+    setStatus(
       "New maze generated"
     );
   };
 
 
-  // ============================================
-  // RUN ALGORITHM
-  // ============================================
+  // ==========================================
+  // RESET
+  // ==========================================
+
+  const reset = () => {
+
+    setExplored([]);
+
+    setPath([]);
+
+    setStats({
+      explored: 0,
+      pathLength: 0,
+      heuristic:
+        manhattanDistance(
+          START,
+          GOAL
+        )
+    });
+
+    setStatus(
+      "Maze reset. Ready to solve."
+    );
+  };
+
+
+  // ==========================================
+  // RUN
+  // ==========================================
 
   const runAlgorithm = async () => {
 
@@ -157,17 +214,16 @@ function App() {
 
     setPath([]);
 
-    setMessage(
-      "Running algorithm..."
+    setStatus(
+      `Running ${
+        algorithm === "greedy"
+          ? "Greedy Best-First Search"
+          : "Hill Climbing"
+      }...`
     );
 
 
     let result;
-
-
-    // -------------------------------
-    // GREEDY BEST-FIRST SEARCH
-    // -------------------------------
 
     if (algorithm === "greedy") {
 
@@ -178,13 +234,7 @@ function App() {
           GOAL
         );
 
-    }
-
-    // -------------------------------
-    // HILL CLIMBING
-    // -------------------------------
-
-    else {
+    } else {
 
       result =
         hillClimbing(
@@ -195,9 +245,9 @@ function App() {
     }
 
 
-    // ============================================
-    // ANIMATE EXPLORED CELLS
-    // ============================================
+    // ========================================
+    // ANIMATE EXPLORATION
+    // ========================================
 
     for (
       let i = 0;
@@ -210,71 +260,85 @@ function App() {
           setTimeout(resolve, 25)
       );
 
+      const current =
+        result.explored[i];
+
       setExplored(prev => [
         ...prev,
-        result.explored[i]
+        current
+      ]);
+
+      setStats(prev => ({
+        ...prev,
+        explored: i + 1,
+        heuristic:
+          manhattanDistance(
+            current,
+            GOAL
+          )
+      }));
+    }
+
+
+    // ========================================
+    // ANIMATE PATH
+    // ========================================
+
+    for (
+      let i = 0;
+      i < result.path.length;
+      i++
+    ) {
+
+      await new Promise(
+        resolve =>
+          setTimeout(resolve, 40)
+      );
+
+      setPath(prev => [
+        ...prev,
+        result.path[i]
       ]);
     }
 
 
-    // ============================================
-    // ANIMATE PATH
-    // ============================================
-
-    if (result.path.length > 0) {
-
-      for (
-        let i = 0;
-        i < result.path.length;
-        i++
-      ) {
-
-        await new Promise(
-          resolve =>
-            setTimeout(resolve, 50)
-        );
-
-        setPath(prev => [
-          ...prev,
-          result.path[i]
-        ]);
-      }
+    setStats(prev => ({
+      ...prev,
+      pathLength:
+        result.path.length
+    }));
 
 
-      setMessage(
-        algorithm === "greedy"
-          ? "Greedy Best-First Search found a path!"
-          : "Hill Climbing found a path!"
+    // ========================================
+    // STATUS
+    // ========================================
+
+    if (result.stuck) {
+
+      setStatus(
+        `${algorithm === "hill"
+          ? "Hill Climbing"
+          : "Greedy Best-First Search"
+        }: ${result.reason}`
       );
 
+    } else {
+
+      setStatus(
+        `${algorithm === "greedy"
+          ? "Greedy Best-First Search"
+          : "Hill Climbing"
+        } successfully reached the goal!`
+      );
     }
-
-    else {
-
-      if (result.stuck) {
-
-        setMessage(
-          algorithm === "hill"
-            ? `Hill Climbing stuck: ${result.reason}`
-            : "Greedy Best-First Search could not find a path."
-        );
-
-      } else {
-
-        setMessage(
-          "No path found."
-        );
-      }
-    }
-
 
     setRunning(false);
   };
 
 
-  // ============================================
-  // CHECK WHETHER ARRAY CONTAINS CELL
-  // ============================================
+  // ==========================================
+  // CELL CHECK
+  // ==========================================
 
   const contains =
     (array, row, col) => {
@@ -287,30 +351,9 @@ function App() {
     };
 
 
-  // ============================================
-  // CURRENT CELL
-  // ============================================
-
-  const currentCell =
-    explored.length > 0
-      ? explored[explored.length - 1]
-      : START;
-
-
-  // ============================================
-  // CURRENT HEURISTIC
-  // ============================================
-
-  const currentHeuristic =
-    manhattanDistance(
-      currentCell,
-      GOAL
-    );
-
-
-  // ============================================
+  // ==========================================
   // CELL CLASS
-  // ============================================
+  // ==========================================
 
   const getCellClass =
     (row, col) => {
@@ -322,7 +365,6 @@ function App() {
         return "cell start";
       }
 
-
       if (
         row === GOAL.row &&
         col === GOAL.col
@@ -330,11 +372,9 @@ function App() {
         return "cell goal";
       }
 
-
       if (maze[row][col] === 1) {
         return "cell wall";
       }
-
 
       if (
         contains(
@@ -346,7 +386,6 @@ function App() {
         return "cell path";
       }
 
-
       if (
         contains(
           explored,
@@ -357,33 +396,38 @@ function App() {
         return "cell explored";
       }
 
-
       return "cell";
     };
 
 
-  // ============================================
-  // RENDER
-  // ============================================
+  const currentHeuristic =
+    stats.heuristic;
+
+
+  // ==========================================
+  // UI
+  // ==========================================
 
   return (
 
     <div className="app">
 
-      <h1>
-        AI Maze Solver
-      </h1>
+      <header className="header">
 
-      <p className="subtitle">
-        Greedy Best-First Search vs Hill Climbing
-      </p>
+        <h1>
+          🧭 Maze AI
+        </h1>
+
+        <p>
+          Heuristic Search Visualization
+        </p>
+
+      </header>
 
 
-      {/* ====================================
-          CONTROLS
-      ==================================== */}
+      {/* CONTROLS */}
 
-      <div className="controls">
+      <section className="controls">
 
         <select
           value={algorithm}
@@ -404,13 +448,44 @@ function App() {
         </select>
 
 
+        <select
+          value={difficulty}
+          onChange={e =>
+            setDifficulty(e.target.value)
+          }
+          disabled={running}
+        >
+
+          <option value="easy">
+            Easy
+          </option>
+
+          <option value="medium">
+            Medium
+          </option>
+
+          <option value="hard">
+            Hard
+          </option>
+
+        </select>
+
+
         <button
           onClick={runAlgorithm}
           disabled={running}
         >
           {running
             ? "Running..."
-            : "Run Algorithm"}
+            : "▶ Run AI"}
+        </button>
+
+
+        <button
+          onClick={reset}
+          disabled={running}
+        >
+          ↻ Reset
         </button>
 
 
@@ -418,148 +493,151 @@ function App() {
           onClick={newMaze}
           disabled={running}
         >
-          New Maze
+          ＋ New Maze
         </button>
 
-      </div>
+      </section>
 
 
-      {/* ====================================
-          HEURISTIC INFORMATION
-      ==================================== */}
+      {/* STATS */}
 
-      <div className="heuristic">
+      <section className="stats">
 
-        <h2>
-          Heuristic Function
-        </h2>
+        <div className="stat-card">
 
-        <p>
+          <span>
+            Current Heuristic
+          </span>
+
           <strong>
-            Manhattan Distance
+            {currentHeuristic}
           </strong>
-        </p>
-
-        <p>
-          h(n) = |row₁ - row₂| +
-          |col₁ - col₂|
-        </p>
-
-        <div className="heuristic-values">
-
-          <div>
-            Start h:
-            <strong>
-              {manhattanDistance(
-                START,
-                GOAL
-              )}
-            </strong>
-          </div>
-
-          <div>
-            Current h:
-            <strong>
-              {currentHeuristic}
-            </strong>
-          </div>
-
-          <div>
-            Goal h:
-            <strong>
-              0
-            </strong>
-          </div>
 
         </div>
 
-      </div>
+
+        <div className="stat-card">
+
+          <span>
+            Explored Nodes
+          </span>
+
+          <strong>
+            {stats.explored}
+          </strong>
+
+        </div>
 
 
-      {/* ====================================
-          STATUS
-      ==================================== */}
+        <div className="stat-card">
+
+          <span>
+            Path Length
+          </span>
+
+          <strong>
+            {stats.pathLength}
+          </strong>
+
+        </div>
+
+
+        <div className="stat-card">
+
+          <span>
+            Goal Heuristic
+          </span>
+
+          <strong>
+            0
+          </strong>
+
+        </div>
+
+      </section>
+
+
+      {/* STATUS */}
 
       <div className="status">
-        {message}
+        {status}
       </div>
 
 
-      {/* ====================================
-          MAZE
-      ==================================== */}
+      {/* MAZE */}
 
-      <div
-        className="maze"
-        style={{
-          gridTemplateColumns:
-            `repeat(${COLS}, 28px)`
-        }}
-      >
+      <main className="maze-wrapper">
 
-        {maze.map(
-          (row, rowIndex) =>
+        <div
+          className="maze"
+          style={{
+            gridTemplateColumns:
+              `repeat(${COLS}, 28px)`
+          }}
+        >
 
-            row.map(
-              (_, colIndex) => {
+          {maze.map(
+            (row, rowIndex) =>
 
-                const isStart =
-                  rowIndex === START.row &&
-                  colIndex === START.col;
+              row.map(
+                (_, colIndex) => {
 
-                const isGoal =
-                  rowIndex === GOAL.row &&
-                  colIndex === GOAL.col;
+                  const isStart =
+                    rowIndex === START.row &&
+                    colIndex === START.col;
 
-                const h =
-                  manhattanDistance(
-                    {
-                      row: rowIndex,
-                      col: colIndex
-                    },
-                    GOAL
-                  );
+                  const isGoal =
+                    rowIndex === GOAL.row &&
+                    colIndex === GOAL.col;
 
+                  const h =
+                    manhattanDistance(
+                      {
+                        row: rowIndex,
+                        col: colIndex
+                      },
+                      GOAL
+                    );
 
-                return (
+                  return (
 
-                  <div
-                    key={`${rowIndex}-${colIndex}`}
-                    className={
-                      getCellClass(
-                        rowIndex,
-                        colIndex
-                      )
-                    }
-                  >
-
-                    {isStart
-                      ? "S"
-                      : isGoal
-                      ? "G"
-                      : maze[rowIndex][colIndex] === 0 &&
-                        !contains(
-                          explored,
+                    <div
+                      key={`${rowIndex}-${colIndex}`}
+                      className={
+                        getCellClass(
                           rowIndex,
                           colIndex
                         )
-                      ? h
-                      : ""}
+                      }
+                    >
 
-                  </div>
-                );
-              }
-            )
-        )}
+                      {isStart
+                        ? "S"
+                        : isGoal
+                        ? "G"
+                        : maze[rowIndex][colIndex] === 0 &&
+                          !contains(
+                            explored,
+                            rowIndex,
+                            colIndex
+                          )
+                        ? h
+                        : ""}
 
-      </div>
+                    </div>
+                  );
+                }
+              )
+          )}
+
+        </div>
+
+      </main>
 
 
-      {/* ====================================
-          LEGEND
-      ==================================== */}
+      {/* LEGEND */}
 
-      <div className="legend">
+      <section className="legend">
 
         <div>
           <span className="legend-box start-box" />
@@ -586,11 +664,35 @@ function App() {
           Path
         </div>
 
-      </div>
+      </section>
+
+
+      {/* INFORMATION */}
+
+      <section className="info">
+
+        <h2>
+          Heuristic
+        </h2>
+
+        <p>
+          Manhattan Distance
+        </p>
+
+        <code>
+          h(n) = |row₁ - row₂| + |col₁ - col₂|
+        </code>
+
+        <p>
+          Lower heuristic values indicate
+          cells that are geometrically closer
+          to the goal.
+        </p>
+
+      </section>
 
     </div>
   );
 }
-
 
 export default App;
