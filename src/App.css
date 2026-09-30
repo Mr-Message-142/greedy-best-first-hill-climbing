@@ -4,13 +4,19 @@
 
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
+
+  font-family:
+    Arial,
+    sans-serif;
+
   background: #f4f6f8;
+
   color: #222;
 }
 
 .app {
   min-height: 100vh;
+
   padding: 30px;
 }
 
@@ -21,16 +27,19 @@ body {
 
 .header {
   text-align: center;
+
   margin-bottom: 25px;
 }
 
 .header h1 {
   margin: 0;
+
   font-size: 38px;
 }
 
 .header p {
   color: #666;
+
   margin-top: 8px;
 }
 
@@ -41,18 +50,26 @@ body {
 
 .controls {
   display: flex;
+
   justify-content: center;
+
   align-items: center;
+
   flex-wrap: wrap;
+
   gap: 10px;
+
   margin-bottom: 25px;
 }
 
 .controls select,
 .controls button {
   padding: 10px 15px;
+
   border-radius: 7px;
+
   border: 1px solid #ccc;
+
   font-size: 14px;
 }
 
@@ -62,8 +79,11 @@ body {
 
 .controls button {
   background: #222;
+
   color: white;
+
   border: none;
+
   cursor: pointer;
 }
 
@@ -73,7 +93,17 @@ body {
 
 .controls button:disabled {
   opacity: 0.5;
+
   cursor: not-allowed;
+}
+
+
+/* ==========================================
+   COMPARE BUTTON
+========================================== */
+
+.compare-button {
+  font-weight: bold;
 }
 
 
@@ -83,6 +113,7 @@ body {
 
 .performance-dashboard {
   max-width: 1000px;
+
   margin: 0 auto 20px;
 
   padding: 20px;
@@ -96,7 +127,9 @@ body {
 
 .dashboard-title {
   display: flex;
+
   justify-content: space-between;
+
   align-items: center;
 
   margin-bottom: 18px;
@@ -125,16 +158,19 @@ body {
 
 .success-badge {
   background: #d9f5df;
+
   color: #18752c;
 }
 
 .warning-badge {
   background: #fff0c7;
+
   color: #8a6200;
 }
 
 .ready-badge {
   background: #e8e8e8;
+
   color: #555;
 }
 
@@ -188,6 +224,129 @@ body {
 
 
 /* ==========================================
+   COMPARISON PANEL
+========================================== */
+
+.comparison-panel {
+  max-width: 1000px;
+
+  margin: 25px auto;
+
+  padding: 22px;
+
+  background: white;
+
+  border: 1px solid #ddd;
+
+  border-radius: 12px;
+}
+
+.comparison-header {
+  text-align: center;
+
+  margin-bottom: 20px;
+}
+
+.comparison-header h2 {
+  margin: 0 0 7px;
+}
+
+.comparison-header p {
+  margin: 0;
+
+  color: #666;
+}
+
+
+/* ==========================================
+   COMPARISON TABLE
+========================================== */
+
+.comparison-table-wrapper {
+  overflow-x: auto;
+}
+
+.comparison-table {
+  width: 100%;
+
+  border-collapse: collapse;
+
+  text-align: center;
+}
+
+.comparison-table th,
+.comparison-table td {
+  padding: 13px;
+
+  border: 1px solid #ddd;
+}
+
+.comparison-table th {
+  background: #f1f3f5;
+
+  font-size: 14px;
+}
+
+.comparison-table td:first-child {
+  font-weight: bold;
+
+  text-align: left;
+}
+
+.comparison-table tbody tr:hover {
+  background: #fafafa;
+}
+
+
+/* ==========================================
+   TABLE STATUS
+========================================== */
+
+.table-success {
+  font-weight: bold;
+
+  color: #18752c;
+}
+
+.table-warning {
+  font-weight: bold;
+
+  color: #9a6800;
+}
+
+
+/* ==========================================
+   COMPARISON NOTE
+========================================== */
+
+.comparison-note {
+  margin-top: 20px;
+
+  padding: 15px;
+
+  background: #f7f7f7;
+
+  border-radius: 8px;
+
+  border-left: 4px solid #555;
+}
+
+.comparison-note strong {
+  display: block;
+
+  margin-bottom: 6px;
+}
+
+.comparison-note p {
+  margin: 0;
+
+  line-height: 1.5;
+
+  color: #555;
+}
+
+
+/* ==========================================
    STATUS
 ========================================== */
 
@@ -233,6 +392,7 @@ body {
 
 .cell {
   width: 28px;
+
   height: 28px;
 
   border: 1px solid #ddd;
@@ -334,6 +494,7 @@ body {
 
 .legend-box {
   width: 20px;
+
   height: 20px;
 
   display: inline-block;
@@ -419,7 +580,7 @@ body {
 
   .controls select,
   .controls button {
-    width: 230px;
+    width: 240px;
   }
 
   .stats-grid {
@@ -428,6 +589,15 @@ body {
 
   .dashboard-title {
     flex-direction: column;
+
     gap: 10px;
+  }
+
+  .comparison-panel {
+    padding: 15px;
+  }
+
+  .comparison-table {
+    min-width: 650px;
   }
 }
